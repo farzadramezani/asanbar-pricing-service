@@ -1,8 +1,9 @@
 # Asanbar Pricing Service
 
 Python 3.12 / FastAPI backend take-home assignment. Gate 1 provides configuration,
-PostgreSQL connectivity, migrations, and health checks. Pricing functionality and
-Redis Streams integration belong to later gates.
+PostgreSQL connectivity, migrations, and health checks. Gate 2 adds persisted rate
+cards and the default commission rule. Pricing calculations and Redis Streams
+integration belong to later gates.
 
 ## Setup
 
@@ -32,7 +33,11 @@ a named volume. Stop infrastructure with `docker compose down`.
 
 The initial migration creates only the `pricing` schema. Application metadata
 targets that schema; Alembic's version table stays in `public`, allowing the first
-migration to create `pricing` without bootstrap SQL. No business tables exist.
+migration to create `pricing` without bootstrap SQL. The next migration creates
+`pricing.rate_cards` and `pricing.commission_rules`, seeds the three rate cards
+from `app/data/rate_cards.yaml` (integer IRR amounts), and inserts the active
+`default` commission rule at 1000 basis points (10%). These YAML seed values are
+part of migration history; future changes require a new migration.
 Apply migrations before starting the application.
 
 ## Endpoints and tests
@@ -48,4 +53,5 @@ curl -i http://127.0.0.1:8000/health
 curl -i http://127.0.0.1:8000/ready
 ```
 
-Tests substitute the database engine and require no running infrastructure.
+Tests cover health/readiness, configuration, and YAML migration seeds without
+requiring running infrastructure.

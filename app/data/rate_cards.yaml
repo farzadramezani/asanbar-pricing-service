@@ -1,0 +1,12 @@
+- cargo_type: general
+  vehicle_type: trailer
+  rate_per_km: 12000
+  extra_stop_fee: 500000
+- cargo_type: general
+  vehicle_type: single
+  rate_per_km: 10000
+  extra_stop_fee: 400000
+- cargo_type: refrigerated
+  vehicle_type: trailer
+  rate_per_km: 15000
+  extra_stop_fee: 600000
