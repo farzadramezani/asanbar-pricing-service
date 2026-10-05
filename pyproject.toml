@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=75,<76"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asanbar-pricing-service"
+version = "0.1.0"
+description = "Asanbar pricing service foundation"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115,<0.116",
+    "uvicorn>=0.34,<0.35",
+    "sqlalchemy>=2.0.38,<2.1",
+    "psycopg[binary]>=3.2,<3.3",
+    "alembic>=1.15,<1.16",
+    "redis>=5.2,<5.3",
+    "pydantic-settings>=2.8,<2.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3,<8.4", "httpx>=0.28,<0.29"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
