@@ -11,10 +11,12 @@ from app.api.errors import (
 )
 from app.api.health import router
 from app.api.pricing import router as pricing_router
+from app.api.snapshots import router as snapshots_router
 
 app = FastAPI(title="Asanbar Pricing Service")
 app.include_router(router)
 app.include_router(pricing_router)
+app.include_router(snapshots_router)
 app.add_exception_handler(PricingError, pricing_error_handler)
 app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_exception_handler(HTTPException, http_error_handler)

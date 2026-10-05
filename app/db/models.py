@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    ForeignKey,
     Integer,
     String,
     Text,
@@ -84,6 +85,45 @@ class PricingQuote(Base):
     stop_fee: Mapped[int] = mapped_column(BigInteger)
     rate_per_km: Mapped[int] = mapped_column(BigInteger)
     commission_rate_bps: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class PriceSnapshot(Base):
+    __tablename__ = "price_snapshots"
+    __table_args__ = (
+        UniqueConstraint("shipment_id", name="uq_price_snapshots_shipment"),
+        CheckConstraint("quote_version > 0", name="ck_price_snapshots_version_positive"),
+        CheckConstraint(
+            "gross_amount >= 0 AND commission_amount >= 0 AND driver_net_amount >= 0",
+            name="ck_price_snapshots_amounts_nonnegative",
+        ),
+        CheckConstraint(
+            "driver_net_amount + commission_amount = gross_amount",
+            name="ck_price_snapshots_amount_balance",
+        ),
+    )
+
+    snapshot_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    shipment_id: Mapped[str] = mapped_column(Text)
+    quote_id: Mapped[UUID] = mapped_column(ForeignKey("pricing.pricing_quotes.quote_id"))
+    quote_version: Mapped[int] = mapped_column(Integer)
+    gross_amount: Mapped[int] = mapped_column(BigInteger)
+    commission_amount: Mapped[int] = mapped_column(BigInteger)
+    driver_net_amount: Mapped[int] = mapped_column(BigInteger)
+    confirmed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class IdempotencyKey(Base):
+    __tablename__ = "idempotency_keys"
+
+    key: Mapped[str] = mapped_column(String(255), primary_key=True)
+    operation: Mapped[str] = mapped_column(String(50))
+    shipment_id: Mapped[str] = mapped_column(Text)
+    snapshot_id: Mapped[UUID] = mapped_column(ForeignKey("pricing.price_snapshots.snapshot_id"))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
